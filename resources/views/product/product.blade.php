@@ -77,14 +77,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group row">
-                                <label for="document" class="col-md-4 col-form-label text-md-right">{{ __('Manual Doc') }}</label>
-
-                                <div class="col-md-6">
-                                    <input id="document" type="file" class="form-control" name="document" onchange="showPDF(this)">
-
-                                </div>
-                            </div>
+                            
 
                             <div class="form-group row mb-0">
                                 <div class="col-md-8 offset-md-4">
