@@ -64,7 +64,18 @@
                                 @endif
                             </div>
                         </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-8 offset-md-4">
+                            New to LajuBUY? <a class="" href="{{ route('register') }}">{{ __('Sign Up') }}</a>
+
+                            </div>
+                        </div>
+
                     </form>
+
+
+
                 </div>
             </div>
         </div>

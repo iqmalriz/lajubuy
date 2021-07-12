@@ -15,18 +15,14 @@ class CreateProductsTable extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->float('price');
-            $table->integer('stock');
-            $table->longText('image')->nullable();
-            $table->binary('imagebinary')->nullable();
-            $table->longText('video')->nullable();
-            $table->binary('videobinary')->nullable();
-            $table->longText('audio')->nullable();
-            $table->binary('audiobinary')->nullable();
-            $table->longText('document')->nullable();
-            $table->binary('documentbinary')->nullable();
-            $table->longText('comment')->nullable();
+            $table->string('name')->nullable();
+            $table->float('price')->nullable();
+            $table->integer('stock')->nullable();
+            $table->text('description')->nullable();
+            $table->text('image')->nullable();
+            $table->boolean('isdeleted')->nullable();
+            $table->foreignId('categoryid')->nullable()->constrained('categorys');
+            $table->foreignId('shopid')->nullable()->constrained('shops');
             $table->timestamps();
         });
     }

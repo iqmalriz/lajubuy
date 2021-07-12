@@ -15,9 +15,10 @@ class CreateReviewsTable extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
-            $table->text('comment');
-            $table->longText('video')->nullable();
-            $table->longText('audio')->nullable();
+            $table->text('comment')->nullable();
+            $table->integer('rating')->nullable();
+            $table->foreignId('userid')->nullable()->constrained('users');
+            $table->foreignId('productid')->nullable()->constrained('products');
             $table->timestamps();
         });
     }

@@ -15,8 +15,10 @@ class CreateShopsTable extends Migration
     {
         Schema::create('shops', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            //$table->timestamps();
+            $table->string('name')->nullable();
+            $table->integer('rating')->nullable();
+            $table->foreignId('userid')->nullable()->constrained('users');
+            $table->timestamps();
         });
     }
 

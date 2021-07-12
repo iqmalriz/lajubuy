@@ -4,22 +4,40 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Product;
+use App\Category;
+use App\Shop;
+use App\User;
+use App\Image;
+use Illuminate\Support\Facades\Auth;
+
+
 use Illuminate\Support\Facades\Response;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        return view('product.product');
+        $shop = Shop::where('userid', Auth::id())->get()->first();
+        //dd($shop);
+        $products = Product::where([['isdeleted', 0], ['shopid', $shop->id]])->where('stock', '>', '0')->get();
+        $products2 = Product::where([['isdeleted', 0], ['shopid', $shop->id]])->where('stock', '0')->get();
+
+        return view('product.product')->with('products', $products)->with('products2', $products2); 
+    }
+
+    public function productadd()
+    {
+        $categories = Category::all();
+        return view('product.productadd')->with('categories', $categories);;
     }
 
     public function create(Request $request)
     {
         $product = new Product();
-
         $product->name = $request->input('name');
         $product->price = $request->input('price');
         $product->stock = $request->input('stock');
+        $product->description = $request->input('description');
 
         if ($request->hasfile('image')) {
             $file = $request->file('image');
@@ -27,35 +45,29 @@ class ProductController extends Controller
             $filename = time() . '.' . $extension;
             $file->move('uploads/product/', $filename);
             $product->image = $filename;
-            
-            // $path = $request->file('image')->getRealPath();
-            // $imgblob = file_get_contents($path);
-            // $base64 = base64_encode($imgblob);
-            // $path = $request->file('image');
-            // $contents = $path->openFile()->fread($path->getSize());
-            // $product->imagebinary = $contents;
-
-            $newfile = file_get_contents('uploads/product/'. $filename);
-            // dd($newfile);
-            $base64 = 'data:image/' . $extension . ';base64,' . base64_encode($newfile);
-            $product->imagebinary = $base64;
-
-
         } else {
-            return $request;
             $product->image = '';
         }
 
+        $product->isdeleted = '0';
+        $product->categoryid = $request->input('category');
+        $shop = Shop::where('userid', Auth::id())->get()->first();
+        $product->shopid = $shop->id;
         $product->save();
 
-        return redirect('home');
-    }
+        // $image = new Image();
+        // if ($request->hasfile('image')) {
+        //     $file = $request->file('image');
+        //     $extension = $file->getClientOriginalExtension(); //getting image extension
+        //     $filename = time() . '.' . $extension;
+        //     $file->move('uploads/product/', $filename);
+        //     $image->path = $filename;
+        //     $image->productid = $product->id;
+        // }
+        // $image->save();
 
-    // public function listproduct()
-    // {
-    //     $product = Product::all();
-    //     return view('home')->with('', $product);
-    // }
+        return redirect('listproduct');
+    }
 
     public function update(Request $request, $id)
     {
@@ -70,86 +82,36 @@ class ProductController extends Controller
             $filename = time() . '.' . $extension;
             $file->move('uploads/product/', $filename);
             $product->image = $filename;
-
-            // $path = $request->path('image');
-            // $type = pathinfo($path, PATHINFO_EXTENSION);
-            // $data = file_get_contents($file);
-            // $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-            // $product->imagebinary = $base64;
-
         } else {
-            return $request;
-            $product->image = '';
-            $product->imagebinary = '';
+            $product->image = $product->image;
         }
 
         $product->save();
 
-        return redirect('home');
+        return redirect('listproduct');
     }
 
-    public function delete($id)
+    public function delete(Request $request, $id)
     {
         $product = Product::find($id);
-        $product->delete();
-        return redirect('home')->with('product', $product);
+        $product->isdeleted = '1';
+        $product->save();
+        
+        $request->session()->flash('status', 'Product have been removed');
+        $request->session()->flash('icon', 'info');
+        return redirect('listproduct');
     }
 
     public function detail($id)
     {
         $product = Product::find($id);
-        return view('product.productdetail')->with('product', $product);
+        //dd($product);
+        $shop = Shop::find($product->shopid);
+        $product2 = Product::where('shopid', $shop->id)->get();
+        $user = User::find($shop->userid);
+        $count = $product2->count();
+        return view('product.productdetail')->with('product', $product)->with('shop', $shop)
+        ->with('user', $user)->with('count', $count);
     }
 
-    public function comment($id)
-    {
-        $products = Product::find($id);
-        return view('product.productcomment')->with('products', $products);
-
-    }
-
-    public function postcomment(Request $request, $id)
-    {
-        $product = Product::find($id);
-
-        $product->comment = $request->input('comment');
-
-        if ($request->hasfile('video')) {
-            $file = $request->file('video');
-            $extension = $file->getClientOriginalExtension(); //getting video extension
-            $filename = time() . '.' . $extension;
-            $file->move('uploads/product/', $filename);
-            $product->video = $filename;
-        } else {
-            return $request;
-            $product->video = '';
-        }
-
-        if ($request->hasfile('audio')) {
-            $file = $request->file('audio');
-            $extension = $file->getClientOriginalExtension(); //getting audio extension
-            $filename = time() . '.' . $extension;
-            $file->move('uploads/product/', $filename);
-            $product->audio = $filename;
-        } else {
-            return $request;
-            $product->audio = '';
-        }
-
-        $product->save();
-
-        return view('product.productdetail')->with('product', $product);
-    }
-
-    public function deletecomment($id)
-    {
-        $products = Product::find($id);
-        $products->comment = '';
-        $products->video = '';
-        $products->audio = '';
-
-        $products->save();
-        return view('product.productdetail')->with('product', $products);
-
-    }
 }
