@@ -8,6 +8,7 @@ use App\Category;
 use App\Shop;
 use App\User;
 use App\Image;
+use App\Review;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -37,6 +38,7 @@ class ProductController extends Controller
         $product->name = $request->input('name');
         $product->price = $request->input('price');
         $product->stock = $request->input('stock');
+        $product->sold = '0';
         $product->description = $request->input('description');
 
         if ($request->hasfile('image')) {
@@ -110,8 +112,41 @@ class ProductController extends Controller
         $product2 = Product::where('shopid', $shop->id)->get();
         $user = User::find($shop->userid);
         $count = $product2->count();
+        $review = Review::join('users', 'reviews.userid', '=', 'users.id')->where('reviews.productid', $id)->select('*', 'reviews.created_at as date')->get();
+        $star1 = $review->where('rating', '1')->count();
+        $star2 = $review->where('rating', '2')->count();
+        $star3 = $review->where('rating', '3')->count();
+        $star4 = $review->where('rating', '4')->count();
+        $star5 = $review->where('rating', '5')->count();
+        $totalstar = $star5 + $star4 + $star3 + $star2 + $star1;
+        if ($totalstar == 0) {
+            $calculateReview = 0.0;
+        } else {
+            $calculateReview = (5*$star5 + 4*$star4 + 3*$star3 + 2*$star2 + 1*$star1) / ($totalstar);
+        }
+        //dd($review);
+
         return view('product.productdetail')->with('product', $product)->with('shop', $shop)
-        ->with('user', $user)->with('count', $count);
+        ->with('user', $user)->with('count', $count)->with('productrate', $calculateReview)->with('totalstar', $totalstar)->with('reviews', $review);
+    }
+
+    public function searchproduct(Request $request)
+    {
+        $search = $request->input('search');
+        $products = Product::
+            join('shops', 'products.shopid', '=', 'shops.id')
+            ->join('users', 'shops.userid', '=', 'users.id')
+            ->join('addresss', 'addresss.userid', '=', 'users.id')
+            ->orderBy('sold', 'desc')
+            ->orderBy('productrate', 'desc')
+            ->where('products.name', 'like', '%'.$search.'%')
+            ->where('stock', '>', '0')
+            ->where('shopadd', '1')
+            ->select('*', 'products.name as pname', 'products.id as pid', 'products.image as pimage')
+            ->get();
+            //dd($products);
+        return view('welcome')->with('products', $products);
+        
     }
 
 }

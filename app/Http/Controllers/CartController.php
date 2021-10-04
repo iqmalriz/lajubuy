@@ -7,6 +7,7 @@ use App\Order;
 use App\Cart;
 use App\Address;
 use App\Product;
+use App\Review;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -228,9 +229,9 @@ class CartController extends Controller
                         ->get();
                         //dd($currentCart);
         $sum = $currentCart->sum('quantity');
-        $address = Address::where('userid', Auth::id())->get();
+        $addresses = Address::where('userid', Auth::id())->get();
         $defaultaddress = Address::where('userid', Auth::id())->where('default', '1')->get()->first();
-        return view('cart.checkout')->with('order', $currentOrder)->with('carts', $currentCart)->with('sum', $sum)->with('default', $defaultaddress);
+        return view('cart.checkout')->with('order', $currentOrder)->with('carts', $currentCart)->with('sum', $sum)->with('default', $defaultaddress)->with('addresses', $addresses);
     }
 
     public function orderdetail($id)
@@ -241,40 +242,77 @@ class CartController extends Controller
         ->join('products', 'carts.productid', '=', 'products.id')
         ->join('shops', 'products.shopid', '=', 'shops.id')
         ->where('carts.id', $id)
+        ->select('*', 'carts.id as cartid')
         ->get()->first();
         return view('cart.orderdetail')->with('cart', $cart);
     }
 
-    public function cancelorder($id)
-    {
-        $cart = Cart::find($id);
-        $cart->status = 'pcancel';
-        $cart->save();
-        // $product = Product::find($cart->productid);
-        // $product->quantity = $product->quantity + $cart->quantity;
-        // $product->save();
-        return redirect('/order');
-    }
+    // public function cancelorder($id)
+    // {
+    //     $cart = Cart::find($id);
+    //     $cart->status = 'pcancel';
+    //     $cart->save();
+    //     // $product = Product::find($cart->productid);
+    //     // $product->quantity = $product->quantity + $cart->quantity;
+    //     // $product->save();
+    //     return redirect('/order');
+    // }
 
-    public function approvecancel($id)
-    {
-        $cart = Cart::find($id);
-        $cart->status = 'cancel';
-        $cart->save();
+    // public function approvecancel($id)
+    // {
+    //     $cart = Cart::find($id);
+    //     $cart->status = 'cancel';
+    //     $cart->save();
 
-        $product = Product::find($cart->productid);
-        $product->stock = $product->stock + $cart->quantity;
-        $product->save();
-        return redirect('/orderseller');
-    }
+    //     $product = Product::find($cart->productid);
+    //     $product->stock = $product->stock + $cart->quantity;
+    //     $product->save();
+    //     return redirect('/orderseller');
+    // }
 
-    public function placeorder($id)
+    public function placeorder(Request $request, $id)
     {
         $order = Order::find($id);
         $order->completed = '1';
+        $order->addressid = $request->input('address');
         $order->save();
 
         Cart::where('orderid', $id)->update(['status' => 'toship']);
+
+        $request->session()->flash('title', 'The order has been paid!');
+        $request->session()->flash('status', 'We have noticed the seller for further update');
+        $request->session()->flash('icon', 'success');
         return redirect('/order');
     }
+
+    public function orderdetailseller($id)
+    {
+        $cart = Cart::
+        join('orders', 'carts.orderid', '=', 'orders.id')
+        ->join('addresss', 'orders.addressid', '=', 'addresss.id')
+        ->join('products', 'carts.productid', '=', 'products.id')
+        ->join('shops', 'products.shopid', '=', 'shops.id')
+        ->where('carts.id', $id)
+        ->select('*', 'carts.id as cartid')
+        ->get()->first();
+        return view('cart.orderdetailseller')->with('cart', $cart);
+    }
+
+    public function updatetracknum(Request $request, $id)
+    {
+        $cart = Cart::find($id);
+        $cart->tracknum = $request->input('tracknum');
+        $cart->status = 'toreceive';
+        $cart->save();
+        return redirect('/orderdetailseller/'.$id);
+    }
+
+    public function receiveorder($id)
+    {
+        $cart = Cart::find($id);
+        $cart->status = 'torate';
+        $cart->save();
+        return redirect('/orderdetail/'.$id);
+    }
+
 }

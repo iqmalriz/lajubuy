@@ -124,7 +124,7 @@
             const url = $(this).attr('href');
             Swal.fire({
                 title: 'Are you sure?',
-                text: 'This record and it`s details will be permanantly deleted!',
+                text: 'This record and it`s details will be permanently deleted!',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',

@@ -28,8 +28,6 @@
                                     <a class="nav-item nav-link" id="nav-toship-tab" data-toggle="tab" href="#nav-toship" role="tab" aria-controls="nav-toship" aria-selected="false">To Ship</a>
                                     <a class="nav-item nav-link" id="nav-shipping-tab" data-toggle="tab" href="#nav-shipping" role="tab" aria-controls="nav-shipping" aria-selected="false">Shipping</a>
                                     <a class="nav-item nav-link" id="nav-completed-tab" data-toggle="tab" href="#nav-completed" role="tab" aria-controls="nav-completed" aria-selected="false">Completed</a>
-                                    <a class="nav-item nav-link" id="nav-cancel-tab" data-toggle="tab" href="#nav-cancel" role="tab" aria-controls="nav-cancel" aria-selected="false">Cancellation</a>
-
                                 </div>
                             </nav>
                         </div>
@@ -59,11 +57,11 @@
                                                 <td>RM {{number_format((float)$cart->subtotal, 2, '.', '')}}</td>
                                                 <td>
                                                     @if ($cart->status == 'toship')
-                                                    <a href="/detailorder/{{ $cart->cartid }}" class="btn btn-warning">To Ship</a>
+                                                    <a href="/orderdetailseller/{{ $cart->cartid }}" class="btn btn-warning">To Ship</a>
                                                     @elseif ($cart->status == 'completed')
-                                                    <a href="#" class="btn btn-success">Completed</a>
+                                                    <a href="/orderdetailseller/{{ $cart->cartid }}" class="btn btn-success">Completed</a>
                                                     @elseif ($cart->status == 'toreceive')
-                                                    <a href="#" class="btn btn-info">In Shipping</a>
+                                                    <a href="/orderdetailseller/{{ $cart->cartid }}" class="btn btn-info">In Shipping</a>
                                                     @elseif ($cart->status == 'pcancel')
                                                     <a href="/approvecancel/{{ $cart->cartid }}" class="btn btn-warning">To Cancel</a>
                                                     @elseif ($cart->status == 'cancel')
@@ -198,47 +196,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="nav-cancel" role="tabpanel" aria-labelledby="nav-cancel-tab">
-                        <div class="card mt-3">
-                            <div class="card-horizontal">
-                                <div class="card-body">
-                                    <table class="table table-stripped table-bordered " id="cancel">
-                                        <thead class="thread-dark">
-                                            <tr>
-                                                <th scope="col">Product(s)</th>
-                                                <th scope="col">Price</th>
-                                                <th scope="col">Quantity</th>
-                                                <th scope="col">Total Price</th>
-                                                <th scope="col">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($cancelCart as $cart)
-                                            <tr>
-                                                <td> {{ $cart->name }}</td>
-                                                <td>RM {{number_format((float)$cart->price, 2, '.', '')}}</td>
-                                                <td>x{{ $cart->quantity }}</td>
-                                                <td>RM {{number_format((float)$cart->subtotal, 2, '.', '')}}</td>
-                                                <td>
-                                                    @if ($cart->status == 'toship')
-                                                    <a href="#" class="btn btn-warning">To Ship</a>
-                                                    @elseif ($cart->status == 'completed')
-                                                    <a href="#" class="btn btn-success">Completed</a>
-                                                    @elseif ($cart->status == 'toreceive')
-                                                    <a href="#" class="btn btn-info">In Shipping</a>
-                                                    @elseif ($cart->status == 'pcancel')
-                                                    <a href="#" class="btn btn-danger">To Cancel</a>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -246,7 +203,9 @@
 
     <script>
         $(document).ready(function() {
-            $('#all').DataTable();
+            $('#all').DataTable({
+                "aaSorting": []
+            });
         });
 
         $(document).ready(function() {

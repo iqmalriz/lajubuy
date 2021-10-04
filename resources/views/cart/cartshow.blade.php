@@ -56,7 +56,7 @@
                 </div>
                 <div class="card">
                     <div class="card-horizontal">
-                        <div class="card-body ">
+                        <div class="card-body">
                             <div class="row">
                                 <div class="col-md-2"><img class="card-img-top" src="{{ asset('uploads/product/' . $cart->image) }}"></div>
                                 <div class="col-md-3">{{ $cart->name }}</div>
@@ -69,7 +69,7 @@
                                             </button>
                                         </a>
                                     </span>
-                                    <input type="text" id="quantity" name="quantity" size="3" style="text-align: center; height:30px" value="{{ $cart->quantity }}" min="1" max="100">
+                                    <input type="text" id="quantity" name="quantity" size="3" style="text-align: center; height:30px" value="{{ $cart->quantity }}" min="1" max="100" readonly>
                                     <span class="input-group-btn">
                                         <a href="/addone/{{ $cart->cartid }}">
                                             <button type="button" style=" height:30px" class="quantity-right-plus btn btn-success btn-number" data-type="plus" data-field="">

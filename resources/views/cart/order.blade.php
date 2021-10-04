@@ -15,6 +15,11 @@
 </style>
 
 <body>
+    @if (session('status'))
+    <script>
+        Swal.fire("{{ session('title') }}", "{{ session('status') }}", "{{ session('icon') }}");
+    </script>
+    @endif
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12">
@@ -27,7 +32,6 @@
                                     <a class="nav-item nav-link" id="nav-toship-tab" data-toggle="tab" href="#nav-toship" role="tab" aria-controls="nav-toship" aria-selected="false">To Ship</a>
                                     <a class="nav-item nav-link" id="nav-toreceive-tab" data-toggle="tab" href="#nav-toreceive" role="tab" aria-controls="nav-toreceive" aria-selected="false">To Receive</a>
                                     <a class="nav-item nav-link" id="nav-completed-tab" data-toggle="tab" href="#nav-completed" role="tab" aria-controls="nav-completed" aria-selected="false">Completed</a>
-                                    <a class="nav-item nav-link" id="nav-cancelled-tab" data-toggle="tab" href="#nav-cancelled" role="tab" aria-controls="nav-cancelled" aria-selected="false">Cancelled</a>
                                 </div>
                             </nav>
                         </div>
@@ -58,10 +62,6 @@
                                             <h6 class="float-right">STATUS: <strong>TO SHIP</strong></h6>
                                             @elseif ($cart->status == 'toreceive')
                                             <h6 class="float-right">STATUS: <strong>TO RECEIVE</strong></h6>
-                                            @elseif ($cart->status == 'pcancel')
-                                            <h6 class="float-right">STATUS: <strong>PENDING CANCEL</strong></h6>
-                                            @elseif ($cart->status == 'cancel')
-                                            <h6 class="float-right">STATUS: <strong>CANCELLED</strong></h6>
                                             @endif
                                     </div>
                                     </div>
@@ -90,21 +90,13 @@
                                 <div class="card-body">
                                     <div class="row offset-md-7">
                                         <div class="row col-md-6">
-                                            @if ($cart->status == 'completed' || $cart->status == 'cancel')
-                                            <a href="#" class="mr-2">
+                                            @if ($cart->status == 'completed')
+                                            <a href="/detailproduct/{{ $cart->productid }}" class="mr-2">
                                                 <button class="btn btn-primary btn-lg">Buy Again</button>
-                                            </a>
-                                            @elseif ($cart->status == 'toship')
-                                            <a href="/cancelorder/{{ $cart->cartid }}" class="mr-2">
-                                                <button class="btn btn-danger btn-lg">Cancel Order</button>
-                                            </a>
+                                            </a>                                        
                                             @elseif ($cart->status == 'toreceive')
-                                            <a href="/receiveorder/{{ $cart->cartid }}" class="mr-2">
-                                                <button class="btn btn-success btn-lg">Order Received</button>
-                                            </a>
-                                            @elseif ($cart->status == 'pcancel')
-                                            <a class="mr-2">
-                                                <button class="btn btn-warning btn-lg" disabled>Pending Cancel</button>
+                                            <a href="/receiveorder/{{ $cart->cartid }}" class="mr-2 btn btn-success btn-lg confirm">
+                                            Order Received
                                             </a>
                                             @endif
                                             <!-- <a href="#" class="mr-2">
@@ -170,10 +162,6 @@
                                             @if ($cart->status == 'completed')
                                             <a href="#" class="mr-2">
                                                 <button class="btn btn-primary btn-lg">Buy Again</button>
-                                            </a>
-                                            @elseif ($cart->status == 'toship')
-                                            <a href="#" class="mr-2">
-                                                <button class="btn btn-danger btn-lg">Cancel Order</button>
                                             </a>
                                             @elseif ($cart->status == 'toreceive')
                                             <a href="#" class="mr-2">
@@ -340,77 +328,6 @@
                         @endforeach
                         @endif
                     </div>
-                    <div class="tab-pane fade" id="nav-cancelled" role="tabpanel" aria-labelledby="nav-cancelled-tab">
-                        @if ($sum5 == 0)
-                        <div class="text-center">
-                            <img src="{{ asset('uploads/cart/noorder.png') }}">
-                        </div>
-                        @else
-                        @foreach($cancelledCart as $cart)
-                        <div class="card mt-3">
-                            <div class="card-horizontal">
-                                <div class="card-body pt-2 pb-2 bg-secondary text-white">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            {{ $cart->sname }}
-                                            <a href="/shop/{{ $cart->shopid }}" class="ml-3">
-                                                <button class="btn btn-light btn-sm">View Shop</button>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-horizontal">
-                                <div class="card-body p-2">
-                                    <div class="row">
-                                        <div class="col-md-2"><img class="card-img-top" src="{{ asset('uploads/product/' . $cart->image) }}"></div>
-                                        <div class="col-md-6 mt-3">
-                                            <h6>{{ $cart->name }}</h6>
-                                            <h6>x{{$cart->quantity}}</h6>
-                                        </div>
-                                        <div class="col-md-2 offset-md-2 mt-3"><strong>RM {{number_format((float)$cart->price, 2, '.', '')}}</strong></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-horizontal">
-                                <div class="card-body">
-                                    <div class="row offset-md-7">
-                                        <div class="row col-md-6">
-                                            @if ($cart->status == 'completed')
-                                            <a href="#" class="mr-2">
-                                                <button class="btn btn-primary btn-lg">Buy Again</button>
-                                            </a>
-                                            @elseif ($cart->status == 'toship')
-                                            <a href="#" class="mr-2">
-                                                <button class="btn btn-danger btn-lg">Cancel Order</button>
-                                            </a>
-                                            @elseif ($cart->status == 'toreceive')
-                                            <a href="#" class="mr-2">
-                                                <button class="btn btn-success btn-lg">Order Received</button>
-                                            </a>
-                                            @endif
-                                            <!-- <a href="#" class="mr-2">
-                                                <button class="btn btn-light btn-lg">Contact Seller</button>
-                                            </a> -->
-                                        </div>
-                                        <div class="">
-                                            Order Total:&nbsp;
-                                        </div>
-                                        <div class="col-md-4">
-                                            <h5 class="text"><strong>RM {{number_format((float)$cart->subtotal, 2, '.', '')}}</strong></h5>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                        @endif
-                    </div>
                 </div>
 
             </div>
@@ -419,5 +336,23 @@
 
 
 </body>
-
+<script>
+    $('.confirm').on('click', function(event) {
+            event.preventDefault();
+            const url = $(this).attr('href');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This order will be marked as completed!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#5cb85c',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, order received!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+        });
+</script>
 @endsection

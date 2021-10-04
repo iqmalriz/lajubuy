@@ -18,6 +18,11 @@
         width: 70px;
     }
 
+    .avatar-med {
+            height: 40px;
+            width: 40px;
+    }
+
 
     .avatar-img {
         width: 100%;
@@ -28,11 +33,11 @@
 </style>
 
 <body>
-@if (session('status'))
+    @if (session('status'))
     <script>
-      Swal.fire("", "{{ session('status') }}", "{{ session('icon') }}");
+        Swal.fire("", "{{ session('status') }}", "{{ session('icon') }}");
     </script>
-@endif
+    @endif
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12">
@@ -43,14 +48,32 @@
                         </div>
                         <div class="card-body">
                             <h4 class="card-title">{{$product->name}}</h4>
-                            <p class="card-text">5.0
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                &emsp;|&emsp; 888 Ratings
-                                &emsp;|&emsp; 888 Sold
+                            <p class="card-text">
+                                @if($productrate == 0)
+                                    No Ratings Yet 
+                                @else
+                                    <strong>{{number_format((float)$productrate, 1, '.', '')}}</strong>
+                                    @php $rating = $productrate; @endphp
+
+                                    @foreach(range(1,5) as $i)
+                                    <span class="fa-stack" style="width:1em; margin-top:-5px">
+                                        <i class="far fa-star fa-stack-1x" style="color:#ffc40c;"></i>
+
+                                        @if($rating >0)
+                                            @if($rating >0.5)
+                                                <i class="fas fa-star fa-stack-1x" style="color:#ffc40c;"></i>
+                                            @else
+                                                <i class="fas fa-star-half fa-stack-1x" style="color:#ffc40c;"></i>
+                                            @endif
+                                        @endif
+                                        @php $rating--; 
+                                    @endphp
+                                    </span>
+                                    @endforeach
+                                
+                                @endif
+                                &emsp;|&emsp; <strong>{{$totalstar}}</strong> Ratings
+                                &emsp;|&emsp; <strong>{{$product->sold}}</strong> Sold
                             </p>
                             <p>&emsp;</p>
                             <div style="background-color: whitesmoke; padding:10px;">
@@ -67,7 +90,7 @@
                                             <i class="fa fa-minus" aria-hidden="true"></i>
                                         </button>
                                     </span>
-                                    <input type="text" id="quantity" name="quantity" size="5" style="text-align: center;" value="1" min="1" >
+                                    <input type="text" id="quantity" name="quantity" size="5" style="text-align: center;" value="1" min="1" readonly>
                                     <span class="input-group-btn">
                                         <button type="button" class="quantity-right-plus btn btn-success btn-number" data-type="plus" data-field="">
                                             <i class="fa fa-plus" aria-hidden="true"></i>
@@ -98,11 +121,11 @@
                                 <div class="col-md-3 row  mt-2">
                                     <div class="col-md-8 row ">
                                         <!-- <i class="fas fa-boxes fa-2x mr-3"></i> -->
-                                        <h6 class="mt-1">Products: {{ $count }} units</h6>
+                                        <h6 class="mt-1">Products: <strong>{{ $count }} units</strong></h6>
                                     </div>
                                     <div class="col-md-8 row ">
                                         <!-- <i class="fas fa-star fa-2x mr-3"></i> -->
-                                        <h6 class="mt-1">Rating: {{ $shop->rating }} Ratings</h6>
+                                        <h6 class="mt-1">Rating: <strong>{{ $shop->rating }} Ratings</strong></h6>
                                     </div>
                                 </div>
                             </div>
@@ -116,45 +139,71 @@
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="form-group row mb-0">
-                                        <label class="col-md-3 offset-md-1 col-form-label text-md-left">{{ __('Brand') }}</label>
+                                        <label class="col-md-3 ml-5 col-form-label text-md-left">{{ __('Brand') }}</label>
                                         <div class="col-md-6">
                                             <label class="col-form-label text-md-left">{{ __('-') }}</label>
                                         </div>
                                     </div>
                                     <div class="form-group row mb-0">
-                                        <label class="col-md-3 offset-md-1 col-form-label text-md-left">{{ __('Model') }}</label>
+                                        <label class="col-md-3 ml-5 col-form-label text-md-left">{{ __('Model') }}</label>
                                         <div class="col-md-6">
                                             <label class="col-form-label text-md-left">{{ __('-') }}</label>
                                         </div>
                                     </div>
                                     <div class="form-group row mb-0">
-                                        <label class="col-md-3 offset-md-1 col-form-label text-md-left">{{ __('Stock') }}</label>
+                                        <label class="col-md-3 ml-5 col-form-label text-md-left">{{ __('Stock') }}</label>
                                         <div class="col-md-6">
-                                            <label class="col-form-label text-md-left">{{ $product->stock }}</label>
+                                            <label class="col-form-label text-md-left"><strong>{{ $product->stock }}</strong></label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <h4 style="background-color: whitesmoke; padding:10px;" class="card-title mt-2">Product Description</h4>
-                        <p>&emsp;</p>
+                        <p class="ml-5"> <?php echo nl2br($product->description) ?></p>
                     </div>
                 </div>
-                <!-- <div class="card mt-3">
+                <div class="card mt-3">
                     <div class="card-body">
-                        <h5 class="card-title">Product Ratings</h5><i class="fa fa-star" aria-hidden="true"></i>
+                        <h4 style="background-color: whitesmoke; padding:10px;" class="card-title">Product Ratings</h4>
 
-                        @if ($product->comment != null)
-                        <a href="/deletecommentproduct/{{ $product->id }}" class="btn btn-danger float-right">Delete</a>
-                        <a href="/commentproduct/{{ $product->id }}" class="btn btn-success float-right">Edit</a>
-                        <p class="card-text">by Iqmal Rizal</p>
-                        <p class="card-text">Description: {{ $product->comment }}</p>
-                        @else
-                        <a href="/commentproduct/{{ $product->id }}" class="btn btn-primary float-right">Add Comment</a>
-                        @endif
+                        @foreach($reviews as $review)
+                        <div class="row">
+                        <div class="avatar-med mt-2 ml-5">
+                            <img class="avatar-img rounded-circle text-center" src="{{ asset('uploads/user/' . $review->image) }}">
+                            
+                        </div>
+                        <div class="col-md-6 mt-2">
+                                {{$review->name}}
+                                <p>
+                                @php $rating = $review->rating; @endphp
 
+                                    @foreach(range(1,5) as $i)
+                                    <span class="fa-stack" style="width:1em; margin-top:-5px">
+                                        <i class="far fa-star fa-stack-1x" style="color:#ffc40c;"></i>
+
+                                        @if($rating >0)
+                                            @if($rating >0.5)
+                                                <i class="fas fa-star fa-stack-1x" style="color:#ffc40c;"></i>
+                                            @else
+                                                <i class="fas fa-star-half fa-stack-1x" style="color:#ffc40c;"></i>
+                                            @endif
+                                        @endif
+                                        @php $rating--; 
+                                    @endphp
+                                    </span>
+                                    @endforeach
+                                </p>
+                                <p>
+                                <?php echo nl2br($review->comment) ?>
+                                </p>
+                                <p><small class="text-muted">{{$review->date}}</small></p>
+                            </div>
+                        </div>
+                        <hr>
+                        @endforeach
                     </div>
-                </div> -->
+                </div>
             </div>
         </div>
     </div>

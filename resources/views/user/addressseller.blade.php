@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.appseller')
 
 @section('content')
 <style>
@@ -45,13 +45,13 @@
             <div class="col-md-12">
                 <ul class="nav flex-column float-left">
                     <li class="nav-item">
-                        <a class="nav-link" href="/account">Profile</a>
+                        <a class="nav-link" href="/accountseller">Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/address">Addresses</a>
+                        <a class="nav-link" href="/addressseller">Addresses</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/password">Change Password</a>
+                        <a class="nav-link" href="/passwordseller">Change Password</a>
                     </li>
                 </ul>
                 <div class="card" style="margin-left: 150px;">
@@ -108,12 +108,12 @@
                                             <a href="#" class="col-md-3 offset-md-5" data-toggle="modal" data-target="#editaddress{{$i}}">Edit</a>
                                             <div>
                                                 @if ($addresses[$i]->default == 0 && $addresses[$i]->shopadd == 0)
-                                                <a href="/deleteaddress/{{ $addresses[$i]->id }}" class="col-md-4 delete-confirm">Delete</a>
+                                                <a href="/deleteaddressseller/{{ $addresses[$i]->id }}" class="col-md-4 delete-confirm">Delete</a>
                                                 @endif
                                             </div>
                                         </div>
                                         <div class="form-group row">
-                                            <a href="/setasdefault/{{ $addresses[$i]->id }}" class="col-md-6 offset-md-5" style="text-decoration: none;">
+                                            <a href="/setasdefaultseller/{{ $addresses[$i]->id }}" class="col-md-6 offset-md-5" style="text-decoration: none;">
                                                 @if ($addresses[$i]->default == 1)
                                                 <button class="btn btn-secondary btn-block" disabled>Set as Default</button>
                                                 @else
@@ -121,7 +121,7 @@
                                                 @endif
                                                
                                             </a>
-                                            <a href="/setaspickup/{{ $addresses[$i]->id }}" class="col-md-6 offset-md-5"  style="text-decoration: none;">
+                                            <a href="/setaspickupseller/{{ $addresses[$i]->id }}" class="col-md-6 offset-md-5"  style="text-decoration: none;">
                                             @if ($addresses[$i]->shopadd == 1)
                                                 <button class="btn btn-secondary btn-block mt-1" disabled>Set as Pickup</button>
                                                 @else
@@ -191,7 +191,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form method="POST" action="/addaddress" enctype="multipart/form-data">
+                <form method="POST" action="/addaddressseller" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
